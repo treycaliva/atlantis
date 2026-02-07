@@ -11,6 +11,8 @@ ARG DEFAULT_TERRAFORM_VERSION=1.14.3
 ARG DEFAULT_OPENTOFU_VERSION=1.11.4
 # renovate: datasource=github-releases depName=open-policy-agent/conftest
 ARG DEFAULT_CONFTEST_VERSION=0.66.0
+# renovate: datasource=github-releases depName=suzuki-shunsuke/tfcmt
+ARG DEFAULT_TFCMT_VERSION=4.14.14
 
 # Stage 1: build artifact and download deps
 
@@ -114,6 +116,24 @@ RUN AVAILABLE_CONFTEST_VERSIONS=${DEFAULT_CONFTEST_VERSION} && \
         rm checksums.txt; \
     done
 
+# install tfcmt
+ARG DEFAULT_TFCMT_VERSION
+ENV DEFAULT_TFCMT_VERSION=${DEFAULT_TFCMT_VERSION}
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN case ${TARGETPLATFORM} in \
+        "linux/amd64") TFCMT_ARCH=amd64 ;; \
+        "linux/arm64") TFCMT_ARCH=arm64 ;; \
+        "linux/arm/v7") TFCMT_ARCH=amd64 ;; \
+    esac && \
+    curl -LOs "https://github.com/suzuki-shunsuke/tfcmt/releases/download/v${DEFAULT_TFCMT_VERSION}/tfcmt_linux_${TFCMT_ARCH}.tar.gz" && \
+    curl -LOs "https://github.com/suzuki-shunsuke/tfcmt/releases/download/v${DEFAULT_TFCMT_VERSION}/tfcmt_${DEFAULT_TFCMT_VERSION}_checksums.txt" && \
+    sed -n "/tfcmt_linux_${TFCMT_ARCH}.tar.gz$/p" "tfcmt_${DEFAULT_TFCMT_VERSION}_checksums.txt" | sha256sum -c && \
+    mkdir -p "/usr/local/bin/tfcmt/versions/${DEFAULT_TFCMT_VERSION}" && \
+    tar -C "/usr/local/bin/tfcmt/versions/${DEFAULT_TFCMT_VERSION}" -xzf "tfcmt_linux_${TFCMT_ARCH}.tar.gz" && \
+    ln -s "/usr/local/bin/tfcmt/versions/${DEFAULT_TFCMT_VERSION}/tfcmt" /usr/local/bin/tfcmt && \
+    rm "tfcmt_linux_${TFCMT_ARCH}.tar.gz" && \
+    rm "tfcmt_${DEFAULT_TFCMT_VERSION}_checksums.txt"
+
 # install git-lfs
 # renovate: datasource=github-releases depName=git-lfs/git-lfs
 ENV GIT_LFS_VERSION=3.7.1
@@ -173,6 +193,7 @@ COPY --from=deps /usr/local/bin/terraform/terraform* /usr/local/bin/
 COPY --from=deps /usr/local/bin/tofu/tofu* /usr/local/bin/
 # copy dependencies
 COPY --from=deps /usr/local/bin/conftest /usr/local/bin/conftest
+COPY --from=deps /usr/local/bin/tfcmt /usr/local/bin/tfcmt
 COPY --from=deps /usr/bin/git-lfs /usr/bin/git-lfs
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
@@ -210,6 +231,8 @@ RUN apk add --no-cache \
 
 ARG DEFAULT_CONFTEST_VERSION
 ENV DEFAULT_CONFTEST_VERSION=${DEFAULT_CONFTEST_VERSION}
+ARG DEFAULT_TFCMT_VERSION
+ENV DEFAULT_TFCMT_VERSION=${DEFAULT_TFCMT_VERSION}
 
 # Set the entry point to the atlantis user and run the atlantis command
 USER atlantis
@@ -236,12 +259,15 @@ COPY --from=deps /usr/local/bin/terraform/terraform* /usr/local/bin/
 COPY --from=deps /usr/local/bin/tofu/tofu* /usr/local/bin/
 # copy dependencies
 COPY --from=deps /usr/local/bin/conftest /usr/local/bin/conftest
+COPY --from=deps /usr/local/bin/tfcmt /usr/local/bin/tfcmt
 COPY --from=deps /usr/bin/git-lfs /usr/bin/git-lfs
 # copy docker-entrypoint.sh
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 ARG DEFAULT_CONFTEST_VERSION
 ENV DEFAULT_CONFTEST_VERSION=${DEFAULT_CONFTEST_VERSION}
+ARG DEFAULT_TFCMT_VERSION
+ENV DEFAULT_TFCMT_VERSION=${DEFAULT_TFCMT_VERSION}
 
 # Set the entry point to the atlantis user and run the atlantis command
 USER atlantis
