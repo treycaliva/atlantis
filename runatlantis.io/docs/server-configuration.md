@@ -1473,6 +1473,16 @@ This flag is useful when having multiple projects that need to run a plan and ap
 
 The effect of the race condition is more evident when using parallel configuration to run plan and apply, by disabling the use of plugin cache will impact in the performance when starting a new plan or apply, but in large atlantis deployments with multiple projects and shared modules the use of `--parallel_plan` and `--parallel_apply` is mandatory for an efficient management of the PRs.
 
+### `--use-tfcmt` <Badge text="v0.36.0+" type="info"/>
+
+```bash
+atlantis server --use-tfcmt
+# or
+ATLANTIS_USE_TFCMT=true
+```
+
+Enable [tfcmt](https://github.com/suzuki-shunsuke/tfcmt) to format the output of terraform plan and apply. Defaults to `false`.
+
 ### `--var-file-allowlist` <Badge text="v0.19.5" type="info"/>
 
 ```bash
