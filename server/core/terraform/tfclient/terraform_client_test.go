@@ -81,7 +81,7 @@ is 0.11.13. You can update by downloading from developer.hashicorp.com/terraform
 	mockDownloader := mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
-	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Ok(t, err)
@@ -118,7 +118,7 @@ is 0.11.13. You can update by downloading from developer.hashicorp.com/terraform
 	mockDownloader := mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
-	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Ok(t, err)
@@ -142,7 +142,7 @@ func TestNewClient_NoTF(t *testing.T) {
 	mockDownloader := mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
-	_, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	_, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	ErrEquals(t, "terraform not found in $PATH. Set --default-tf-version or download terraform from https://developer.hashicorp.com/terraform/downloads", err)
 }
 
@@ -168,7 +168,7 @@ func TestNewClient_DefaultTFFlagInPath(t *testing.T) {
 	mockDownloader := mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
-	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, false, true, projectCmdOutputHandler)
+	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, false, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Ok(t, err)
@@ -199,7 +199,7 @@ func TestNewClient_DefaultTFFlagInBinDir(t *testing.T) {
 	mockDownloader := mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
-	c, err := tfclient.NewClient(logging.NewNoopLogger(t), distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	c, err := tfclient.NewClient(logging.NewNoopLogger(t), distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Ok(t, err)
@@ -233,7 +233,7 @@ func TestNewClient_DefaultTFFlagDownload(t *testing.T) {
 		return []ReturnValue{binPath, err}
 	})
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
-	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Ok(t, err)
@@ -256,7 +256,7 @@ func TestNewClient_BadVersion(t *testing.T) {
 	projectCmdOutputHandler := jobmocks.NewMockProjectCommandOutputHandler()
 	mockDownloader := mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
-	_, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "malformed", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	_, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "malformed", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	ErrEquals(t, "Malformed version: malformed", err)
 }
 
@@ -284,7 +284,7 @@ func TestRunCommandWithVersion_DLsTF(t *testing.T) {
 		return []ReturnValue{binPath, err}
 	})
 
-	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 	Equals(t, "0.11.10", c.DefaultVersion().String())
 
@@ -305,7 +305,7 @@ func TestEnsureVersion_downloaded(t *testing.T) {
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
 	downloadsAllowed := true
-	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, downloadsAllowed, true, projectCmdOutputHandler)
+	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, downloadsAllowed, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Equals(t, "0.11.10", c.DefaultVersion().String())
@@ -338,7 +338,7 @@ func TestEnsureVersion_downloaded_customURL(t *testing.T) {
 	downloadsAllowed := true
 	customURL := "http://releases.example.com"
 
-	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, customURL, downloadsAllowed, true, projectCmdOutputHandler)
+	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, customURL, downloadsAllowed, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Equals(t, "0.11.10", c.DefaultVersion().String())
@@ -370,7 +370,7 @@ func TestEnsureVersion_downloaded_downloadingDisabled(t *testing.T) {
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
 	downloadsAllowed := false
-	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, downloadsAllowed, true, projectCmdOutputHandler)
+	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, downloadsAllowed, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	Equals(t, "0.11.10", c.DefaultVersion().String())
@@ -502,6 +502,12 @@ terraform {
 			mockDownloader := mocks.NewMockDownloader()
 			distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
+			// Create a fake terraform binary to satisfy the check in NewClientWithDefaultVersion
+			fakeBinPath := filepath.Join(binDir, "terraform")
+			err := os.WriteFile(fakeBinPath, []byte("#!/bin/sh\necho Terraform v0.12.8"), 0700)
+			Ok(t, err)
+			defer tempSetEnv(t, "PATH", fmt.Sprintf("%s:%s", binDir, os.Getenv("PATH")))()
+
 			c, err := tfclient.NewTestClient(
 				logger,
 				distribution,
@@ -514,6 +520,7 @@ terraform {
 				cmd.DefaultTFDownloadURL,
 				downloadsAllowed,
 				true,
+				false,
 				projectCmdOutputHandler)
 			Ok(t, err)
 
@@ -549,7 +556,7 @@ func TestExtractExactRegex(t *testing.T) {
 	mockDownloader := mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
-	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, projectCmdOutputHandler)
+	c, err := tfclient.NewTestClient(logger, distribution, binDir, cacheDir, "", "", "0.11.10", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, false, projectCmdOutputHandler)
 	Ok(t, err)
 
 	tests := []struct {
@@ -574,4 +581,40 @@ func TestExtractExactRegex(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Test that if useTFCMT is true, the command is wrapped.
+func TestRunCommandWithVersion_UseTFCMT(t *testing.T) {
+	fakeBinOut := "Terraform v0.11.10\n"
+	logger := logging.NewNoopLogger(t)
+	tmp, binDir, cacheDir := mkSubDirs(t)
+	projectCmdOutputHandler := jobmocks.NewMockProjectCommandOutputHandler()
+	ctx := command.ProjectContext{
+		Log:        logging.NewNoopLogger(t),
+		Workspace:  "default",
+		RepoRelDir: ".",
+	}
+
+	// Create fake terraform binary
+	err := os.WriteFile(filepath.Join(tmp, "terraform"), fmt.Appendf(nil, "#!/bin/sh\necho '%s'", fakeBinOut), 0700)
+	Ok(t, err)
+
+	// Create fake tfcmt binary that just echos arguments
+	err = os.WriteFile(filepath.Join(tmp, "tfcmt"), []byte("#!/bin/sh\necho \"tfcmt $@\""), 0700)
+	Ok(t, err)
+
+	defer tempSetEnv(t, "PATH", fmt.Sprintf("%s:%s", tmp, os.Getenv("PATH")))()
+
+	mockDownloader := mocks.NewMockDownloader()
+	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
+
+	// Enable tfcmt
+	c, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "", cmd.DefaultTFVersionFlag, cmd.DefaultTFDownloadURL, true, true, true, projectCmdOutputHandler)
+	Ok(t, err)
+
+	output, err := c.RunCommandWithVersion(ctx, tmp, []string{"plan"}, map[string]string{}, distribution, nil, "")
+	Ok(t, err)
+	// Output should start with tfcmt
+	// tfcmt plan -- /path/to/terraform plan
+	Assert(t, strings.HasPrefix(output, "tfcmt plan --"), "Output should start with tfcmt, got: %s", output)
 }

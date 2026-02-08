@@ -84,6 +84,9 @@ type DefaultClient struct {
 	// usePluginCache determines whether or not to set the TF_PLUGIN_CACHE_DIR env var
 	usePluginCache bool
 
+	// useTFCMT determines whether or not to wrap the terraform command with tfcmt
+	useTFCMT bool
+
 	projectCmdOutputHandler jobs.ProjectCommandOutputHandler
 }
 
@@ -112,6 +115,7 @@ func NewClientWithDefaultVersion(
 	tfDownloadURL string,
 	tfDownloadAllowed bool,
 	usePluginCache bool,
+	useTFCMT bool,
 	fetchAsync bool,
 	projectCmdOutputHandler jobs.ProjectCommandOutputHandler,
 ) (*DefaultClient, error) {
@@ -182,6 +186,7 @@ func NewClientWithDefaultVersion(
 		versionsLock:            &versionsLock,
 		versions:                versions,
 		usePluginCache:          usePluginCache,
+		useTFCMT:                useTFCMT,
 		projectCmdOutputHandler: projectCmdOutputHandler,
 	}, nil
 
@@ -199,6 +204,7 @@ func NewTestClient(
 	tfDownloadURL string,
 	tfDownloadAllowed bool,
 	usePluginCache bool,
+	useTFCMT bool,
 	projectCmdOutputHandler jobs.ProjectCommandOutputHandler,
 ) (*DefaultClient, error) {
 	return NewClientWithDefaultVersion(
@@ -213,6 +219,7 @@ func NewTestClient(
 		tfDownloadURL,
 		tfDownloadAllowed,
 		usePluginCache,
+		useTFCMT,
 		false,
 		projectCmdOutputHandler,
 	)
@@ -237,6 +244,7 @@ func NewClient(
 	tfDownloadURL string,
 	tfDownloadAllowed bool,
 	usePluginCache bool,
+	useTFCMT bool,
 	projectCmdOutputHandler jobs.ProjectCommandOutputHandler,
 ) (*DefaultClient, error) {
 	return NewClientWithDefaultVersion(
@@ -251,6 +259,7 @@ func NewClient(
 		tfDownloadURL,
 		tfDownloadAllowed,
 		usePluginCache,
+		useTFCMT,
 		true,
 		projectCmdOutputHandler,
 	)
@@ -442,6 +451,9 @@ func (c *DefaultClient) prepCmd(log logging.SimpleLogging, d terraform.Distribut
 	// AWS_ACCESS_KEY.
 	envVars = append(envVars, os.Environ()...)
 	tfCmd := fmt.Sprintf("%s %s", binPath, strings.Join(args, " "))
+	if c.useTFCMT && (args[0] == "plan" || args[0] == "apply") {
+		tfCmd = fmt.Sprintf("tfcmt %s -- %s", args[0], tfCmd)
+	}
 	return tfCmd, envVars, nil
 }
 

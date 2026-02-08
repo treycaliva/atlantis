@@ -1344,7 +1344,7 @@ func setupE2E(t *testing.T, repoDir string, opt setupOption) (events_controllers
 	mockDownloader := terraform_mocks.NewMockDownloader()
 	distribution := terraform.NewDistributionTerraformWithDownloader(mockDownloader)
 
-	terraformClient, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "", "default-tf-version", "https://releases.hashicorp.com", true, false, projectCmdOutputHandler)
+	terraformClient, err := tfclient.NewClient(logger, distribution, binDir, cacheDir, "", "", "", "default-tf-version", "https://releases.hashicorp.com", true, false, false, projectCmdOutputHandler)
 	Ok(t, err)
 	b, err := boltdb.New(dataDir)
 	Ok(t, err)
