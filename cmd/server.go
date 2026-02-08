@@ -150,6 +150,7 @@ const (
 	TFDistributionFlag               = "tf-distribution" // deprecated for DefaultTFDistributionFlag
 	TFDownloadFlag                   = "tf-download"
 	TFDownloadURLFlag                = "tf-download-url"
+	UseTFCMT                         = "use-tfcmt"
 	UseTFPluginCache                 = "use-tf-plugin-cache"
 	VarFileAllowlistFlag             = "var-file-allowlist"
 	VCSStatusName                    = "vcs-status-name"
@@ -653,6 +654,10 @@ var boolFlags = map[string]boolFlag{
 	UseTFPluginCache: {
 		description:  "Enable the use of the Terraform plugin cache",
 		defaultValue: true,
+	},
+	UseTFCMT: {
+		description:  "Enable tfcmt to format the output of terraform plan and apply",
+		defaultValue: false,
 	},
 }
 var intFlags = map[string]intFlag{

@@ -470,6 +470,7 @@ func NewServer(userConfig UserConfig, config Config) (*Server, error) {
 		userConfig.TFDownloadURL,
 		userConfig.TFDownload,
 		userConfig.UseTFPluginCache,
+		userConfig.UseTFCMT,
 		projectCmdOutputHandler)
 	// The flag.Lookup call is to detect if we're running in a unit test. If we
 	// are, then we don't error out because we don't have/want terraform

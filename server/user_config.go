@@ -125,6 +125,7 @@ type UserConfig struct {
 	TFEHostname                string          `mapstructure:"tfe-hostname"`
 	TFELocalExecutionMode      bool            `mapstructure:"tfe-local-execution-mode"`
 	TFEToken                   string          `mapstructure:"tfe-token"`
+	UseTFCMT                   bool            `mapstructure:"use-tfcmt"`
 	VarFileAllowlist           string          `mapstructure:"var-file-allowlist"`
 	VCSStatusName              string          `mapstructure:"vcs-status-name"`
 	DefaultTFDistribution      string          `mapstructure:"default-tf-distribution"`
